@@ -57,24 +57,30 @@ typedef ba::accumulator_set < double, ba::stats < bt::rolling_mean > > deltaAcc;
 // parameter indices
 enum
 {
-    pRandThresh,
-    pMinThresh,
-    pMaxThresh,
-    pThreshold,
-    pPosOn,
-    pNegOn,
-    pInputChan,
-    pEventChan,
-    pEventDur,
-    pTimeout,
-    pPastSpan,
-    pPastStrict,
-    pFutureSpan,
-    pFutureStrict,
-    pUseJumpLimit,
-    pJumpLimit,
+	pRandThresh,
+	pMinThresh,
+	pMaxThresh,
+	pThreshold,
+	pPosOn,
+	pNegOn,
+	pInputChan,
+	pEventChan,
+	pEventDur,
+	pTimeout,
+	pPastSpan,
+	pPastStrict,
+	pFutureSpan,
+	pFutureStrict,
+	pUseJumpLimit,
+	pJumpLimit,
+	pAlphaLow,
+	pAlphaHigh,
 	pAlphaGain,
+	pBetaLow,
+	pBetaHigh,
 	pBetaGain,
+	pDeltaLow,
+	pDeltaHigh,
 	pDeltaGain
 };
 
@@ -91,7 +97,11 @@ public:
 
     void createEventChannels() override;
 
-	void createConfigurationObjects() override;
+	//void updateSettings() override;
+
+	//void createConfigurationObjects() override;
+
+	void setFilterParameters();
 
     void process(AudioSampleBuffer& continuousBuffer) override;
 
@@ -107,18 +117,17 @@ private:
 	AudioSampleBuffer scratchBuffer;
 	AudioSampleBuffer rollBuffer;
 
-	int alphaLow;
-	int alphaHigh;
+	float alphaLow;
+	float alphaHigh;
 	float alphaGain;
-	// int alphaGain;
 	
-	int betaLow;
-	int betaHigh;
+	float betaLow;
+	float betaHigh;
 	float betaGain;
 	int betaChan;
 
-	int deltaLow;
-	int deltaHigh;
+	float deltaLow;
+	float deltaHigh;
 	float deltaGain;
 	int deltaChan;
 

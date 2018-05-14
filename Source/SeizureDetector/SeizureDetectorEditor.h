@@ -50,112 +50,122 @@ Canvas/visualizer contains:
 
 class SeizureDetectorCanvas;
 
-class SeizureDetectorEditor 
-    : public VisualizerEditor
-    , public ComboBox::Listener
-    , public Label::Listener
+class SeizureDetectorEditor
+	: public VisualizerEditor
+	, public ComboBox::Listener
+	, public Label::Listener
 {
 public:
-    SeizureDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors = false);
-    ~SeizureDetectorEditor();
-    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
-    void labelTextChanged(Label* labelThatHasChanged) override;
+	SeizureDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors = false);
+	~SeizureDetectorEditor();
+	void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+	void labelTextChanged(Label* labelThatHasChanged) override;
 
-    // overrides GenericEditor
-    void buttonEvent(Button* button) override;
+	// overrides GenericEditor
+	void buttonEvent(Button* button) override;
 
-    void updateSettings() override;
+	void updateSettings() override;
 
-    // disable input channel selection during acquisition so that events work correctly
-    void startAcquisition() override;
-    void stopAcquisition() override;
+	// disable input channel selection during acquisition so that events work correctly
+	void startAcquisition() override;
+	void stopAcquisition() override;
 
-    Visualizer* createNewCanvas() override;
+	Visualizer* createNewCanvas() override;
 
-    Component* getOptionsPanel();
+	Component* getOptionsPanel();
 
-    void saveCustomParameters(XmlElement* xml) override;
-    void loadCustomParameters(XmlElement* xml) override;
+	void saveCustomParameters(XmlElement* xml) override;
+	void loadCustomParameters(XmlElement* xml) override;
 
 private:
-    typedef juce::Rectangle<int> Rectangle;
+	typedef juce::Rectangle<int> Rectangle;
 
-    // Basic UI element creation methods. Always register "this" (the editor) as the listener,
-    // but may specify a different Component in which to actually display the element.
-    Label* createEditable(const String& name, const String& initialValue,
-        const String& tooltip, Rectangle bounds);
-    Label* createLabel(const String& name, const String& text, Rectangle bounds);
+	// Basic UI element creation methods. Always register "this" (the editor) as the listener,
+	// but may specify a different Component in which to actually display the element.
+	Label* createEditable(const String& name, const String& initialValue,
+		const String& tooltip, Rectangle bounds);
+	Label* createLabel(const String& name, const String& text, Rectangle bounds);
 
-    // Utilities for parsing entered values
-    static bool updateIntLabel(Label* label, int min, int max, int defaultValue, int* out);
-    static bool updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out);
+	// Utilities for parsing entered values
+	static bool updateIntLabel(Label* label, int min, int max, int defaultValue, int* out);
+	static bool updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out);
 
-    // top row (channels)
-    ScopedPointer<Label> inputLabel;
-    ScopedPointer<ComboBox> inputBox;
-    ScopedPointer<Label> outputLabel;
-    ScopedPointer<ComboBox> outputBox;
+	// top row (channels)
+	ScopedPointer<Label> inputLabel;
+	ScopedPointer<ComboBox> inputBox;
+	ScopedPointer<Label> outputLabel;
+	ScopedPointer<ComboBox> outputBox;
 
-    // middle row (threshold)
-    ScopedPointer<UtilityButton> risingButton;
-    ScopedPointer<UtilityButton> fallingButton;
-    ScopedPointer<Label> acrossLabel;
-    ScopedPointer<Label> thresholdEditable;
+	// middle row (threshold)
+	ScopedPointer<UtilityButton> risingButton;
+	ScopedPointer<UtilityButton> fallingButton;
+	ScopedPointer<Label> acrossLabel;
+	ScopedPointer<Label> thresholdEditable;
 
-    // bottom row (timeout)
-    ScopedPointer<Label> timeoutLabel;
-    ScopedPointer<Label> timeoutEditable;
-    ScopedPointer<Label> timeoutUnitLabel;
+	// bottom row (timeout)
+	ScopedPointer<Label> timeoutLabel;
+	ScopedPointer<Label> timeoutEditable;
+	ScopedPointer<Label> timeoutUnitLabel;
 
-    // --- Canvas elements are managed by editor but invisible until visualizer is opened ----
-    SeizureDetectorCanvas* canvas;
-    ScopedPointer<Component> optionsPanel;
+	// --- Canvas elements are managed by editor but invisible until visualizer is opened ----
+	SeizureDetectorCanvas* canvas;
+	ScopedPointer<Component> optionsPanel;
 
-    ScopedPointer<Label> optionsPanelTitle;
-    
-    // threshold randomization
-    ScopedPointer<ToggleButton> randomizeButton;
-    ScopedPointer<Label> minThreshLabel;
-    ScopedPointer<Label> minThreshEditable;
-    ScopedPointer<Label> maxThreshLabel;
-    ScopedPointer<Label> maxThreshEditable;
+	ScopedPointer<Label> optionsPanelTitle;
 
-    // jump limiting
-    ScopedPointer<ToggleButton> limitButton;
-    ScopedPointer<Label> limitLabel;
-    ScopedPointer<Label> limitEditable;
+	// threshold randomization
+	ScopedPointer<ToggleButton> randomizeButton;
+	ScopedPointer<Label> minThreshLabel;
+	ScopedPointer<Label> minThreshEditable;
+	ScopedPointer<Label> maxThreshLabel;
+	ScopedPointer<Label> maxThreshEditable;
 
-    // sample voting
-    ScopedPointer<Label> votingHeader;
-    
-    ScopedPointer<Label> pastStrictLabel;
-    ScopedPointer<Label> pastPctEditable;
-    ScopedPointer<Label> pastPctLabel;
-    ScopedPointer<Label> pastSpanEditable;
-    ScopedPointer<Label> pastSpanLabel;
+	// jump limiting
+	ScopedPointer<ToggleButton> limitButton;
+	ScopedPointer<Label> limitLabel;
+	ScopedPointer<Label> limitEditable;
 
-    ScopedPointer<Label> futureStrictLabel;
-    ScopedPointer<Label> futurePctEditable;
-    ScopedPointer<Label> futurePctLabel;
-    ScopedPointer<Label> futureSpanLabel;
-    ScopedPointer<Label> futureSpanEditable;
+	// sample voting
+	ScopedPointer<Label> votingHeader;
 
-    ScopedPointer<Label> votingFooter;
+	ScopedPointer<Label> pastStrictLabel;
+	ScopedPointer<Label> pastPctEditable;
+	ScopedPointer<Label> pastPctLabel;
+	ScopedPointer<Label> pastSpanEditable;
+	ScopedPointer<Label> pastSpanLabel;
 
-    // event duration
-    ScopedPointer<Label> durLabel;
-    ScopedPointer<Label> durationEditable;
-    ScopedPointer<Label> durUnitLabel;
+	ScopedPointer<Label> futureStrictLabel;
+	ScopedPointer<Label> futurePctEditable;
+	ScopedPointer<Label> futurePctLabel;
+	ScopedPointer<Label> futureSpanLabel;
+	ScopedPointer<Label> futureSpanEditable;
+
+	ScopedPointer<Label> votingFooter;
+
+	// event duration
+	ScopedPointer<Label> durLabel;
+	ScopedPointer<Label> durationEditable;
+	ScopedPointer<Label> durUnitLabel;
+
+	// frequency bandds
+	ScopedPointer<Label> freqLabel;
+	ScopedPointer<Label> freqLabelSub;
+	ScopedPointer<Label> freqLabelSub2;
+	
+	ScopedPointer<Label> alphaLowEdit;
+	ScopedPointer<Label> alphaHighEdit;
+	ScopedPointer<Label> betaLowEdit;
+	ScopedPointer<Label> betaHighEdit;
+	ScopedPointer<Label> deltaLowEdit;
+	ScopedPointer<Label> deltaHighEdit;
 
 	// frequency band gains
 	ScopedPointer<Label> gainLabel;
 
 	ScopedPointer<Label> alphaLabel;
 	ScopedPointer<Label> alphaEditable;
-
 	ScopedPointer<Label> betaLabel;
 	ScopedPointer<Label> betaEditable;
-
 	ScopedPointer<Label> deltaLabel;
 	ScopedPointer<Label> deltaEditable;
 };

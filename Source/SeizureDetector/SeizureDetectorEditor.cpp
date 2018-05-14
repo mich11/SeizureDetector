@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SeizureDetector.h"
 
 SeizureDetectorEditor::SeizureDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
-    : VisualizerEditor(parentNode, 305, useDefaultParameterEditors)
+    : VisualizerEditor(parentNode, 350, useDefaultParameterEditors)
 {
     tabText = "Seizure Detector";
     SeizureDetector* processor = static_cast<SeizureDetector*>(parentNode);
@@ -107,33 +107,77 @@ SeizureDetectorEditor::SeizureDetectorEditor(GenericProcessor* parentNode, bool 
     timeoutUnitLabel = createLabel("TimeoutUnitL", "ms", Rectangle(xPos += 53, yPos, 30, TEXT_HT));
     addAndMakeVisible(timeoutUnitLabel);
 
-	/* ---------------- Right Panel Frequency gains (PMF) --------------- */
+	/* ---------------- Right Panel Frequency ranges and gains (PMF) --------------- */
 
+	//frequency band low cutoffs
 	int xPosR = 190;
 	int yPosR = 25;
 
-	gainLabel = createLabel("gainL", "Freq gains", Rectangle(xPosR, yPosR, 100, TEXT_HT));
+	freqLabel = createLabel("freqL", "Frequency bands", Rectangle(xPosR, yPosR, 150, TEXT_HT));
+	addAndMakeVisible(freqLabel);
+
+	freqLabelSub = createLabel("freqLS", "Low", Rectangle(xPosR, yPosR += 20, 50, TEXT_HT));
+	addAndMakeVisible(freqLabelSub);
+
+	alphaLowEdit = createEditable("alphaLowE", String(processor->alphaLow), "",
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT));
+	addAndMakeVisible(alphaLowEdit);
+
+	betaLowEdit = createEditable("betaLowE", String(processor->betaLow), "",
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT));
+	addAndMakeVisible(betaLowEdit);
+
+	deltaLowEdit = createEditable("deltaLowE", String(processor->deltaLow), "",
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT));
+	addAndMakeVisible(deltaLowEdit);
+
+	//frequency band high cutoffs
+
+	xPosR = 240;
+	yPosR = 45;
+
+	freqLabelSub2 = createLabel("freqLS2", "High", Rectangle(xPosR, yPosR, 50, TEXT_HT));
+	addAndMakeVisible(freqLabelSub2);
+	
+	alphaHighEdit = createEditable("alphaHighE", String(processor->alphaHigh), "",
+		Rectangle(xPosR, yPosR +=20, 40, TEXT_HT));
+	addAndMakeVisible(alphaHighEdit);
+
+	betaHighEdit = createEditable("betaHighE", String(processor->betaHigh), "",
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT));
+	addAndMakeVisible(betaHighEdit);
+
+	deltaHighEdit = createEditable("deltaHighE", String(processor->deltaHigh), "",
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT));
+	addAndMakeVisible(deltaHighEdit);
+
+	//frequency band gains
+
+	xPosR = 290; 
+	yPosR = 45; 
+	
+	gainLabel = createLabel("gainL", "Gain", Rectangle(xPosR, yPosR, 50, TEXT_HT));
 	addAndMakeVisible(gainLabel);
 
-	alphaLabel = createLabel("alphaL", "6-9Hz", Rectangle(xPosR, yPosR += 20, 100, TEXT_HT));
-	addAndMakeVisible(alphaLabel);
+	//alphaLabel = createLabel("alphaL", "6-9Hz", Rectangle(xPosR, yPosR += 20, 100, TEXT_HT));
+	//addAndMakeVisible(alphaLabel);
 
 	alphaEditable = createEditable("alphaE", String(processor->alphaGain), "",
-		Rectangle(xPosR + 60, yPosR, 40, TEXT_HT ));
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT ));
 	addAndMakeVisible(alphaEditable);
 
-	betaLabel = createLabel("betaL", "13-18Hz", Rectangle(xPosR, yPosR += 20, 100, TEXT_HT));
-	addAndMakeVisible(betaLabel);
+	//betaLabel = createLabel("betaL", "13-18Hz", Rectangle(xPosR, yPosR += 20, 100, TEXT_HT));
+	//addAndMakeVisible(betaLabel);
 
 	betaEditable = createEditable("betaE", String(processor->betaGain), "",
-		Rectangle(xPosR + 60, yPosR, 40, TEXT_HT));
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT));
 	addAndMakeVisible(betaEditable);
 
-	deltaLabel = createLabel("deltaL", "1-4Hz", Rectangle(xPosR, yPosR += 20, 100, TEXT_HT));
-	addAndMakeVisible(deltaLabel);
+	//deltaLabel = createLabel("deltaL", "1-4Hz", Rectangle(xPosR, yPosR += 20, 100, TEXT_HT));
+	//addAndMakeVisible(deltaLabel);
 
 	deltaEditable = createEditable("deltaE", String(processor->deltaGain), "",
-		Rectangle(xPosR + 60, yPosR, 40, TEXT_HT));
+		Rectangle(xPosR, yPosR += 20, 40, TEXT_HT));
 	addAndMakeVisible(deltaEditable);
 
     /************** Canvas elements *****************/
@@ -410,6 +454,22 @@ void SeizureDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
 		if (success)
 			processor->setParameter(pJumpLimit, newVal);
 	}
+	else if (labelThatHasChanged == alphaLowEdit)
+	{
+		float newVal;
+		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->alphaLow, &newVal);
+
+		if (success)
+			processor->setParameter(pAlphaLow, newVal);
+	}
+	else if (labelThatHasChanged == alphaHighEdit)
+	{
+		float newVal;
+		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->alphaHigh, &newVal);
+
+		if (success)
+			processor->setParameter(pAlphaHigh, newVal);
+	}
 	else if (labelThatHasChanged == alphaEditable)
 	{
 		float newVal;
@@ -418,6 +478,22 @@ void SeizureDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
 		if (success)
 			processor->setParameter(pAlphaGain, newVal);
 	}
+	else if (labelThatHasChanged == betaLowEdit)
+	{
+		float newVal;
+		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->betaLow, &newVal);
+
+		if (success)
+			processor->setParameter(pBetaLow, newVal);
+	}
+	else if (labelThatHasChanged == betaHighEdit)
+	{
+		float newVal;
+		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->betaHigh, &newVal);
+
+		if (success)
+			processor->setParameter(pBetaHigh, newVal);
+	}
 	else if (labelThatHasChanged == betaEditable)
 	{
 		float newVal;
@@ -425,6 +501,22 @@ void SeizureDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
 
 		if (success)
 			processor->setParameter(pBetaGain, newVal);
+	}
+	else if (labelThatHasChanged == deltaLowEdit)
+	{
+		float newVal;
+		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->deltaLow, &newVal);
+
+		if (success)
+			processor->setParameter(pDeltaLow, newVal);
+	}
+	else if (labelThatHasChanged == deltaHighEdit)
+	{
+		float newVal;
+		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->deltaHigh, &newVal);
+
+		if (success)
+			processor->setParameter(pDeltaHigh, newVal);
 	}
 	else if (labelThatHasChanged == deltaEditable)
 	{
@@ -542,6 +634,14 @@ void SeizureDetectorEditor::saveCustomParameters(XmlElement* xml)
     paramValues->setAttribute("durationMS", durationEditable->getText());
     paramValues->setAttribute("timeoutMS", timeoutEditable->getText());
 
+	//frequency bands
+	paramValues->setAttribute("alphaLow", alphaLowEdit->getText());
+	paramValues->setAttribute("alphaHigh", alphaHighEdit->getText());
+	paramValues->setAttribute("betaLow", betaLowEdit->getText());
+	paramValues->setAttribute("betaHigh", betaHighEdit->getText());
+	paramValues->setAttribute("deltaLow", deltaLowEdit->getText());
+	paramValues->setAttribute("deltaHigh", deltaHighEdit->getText());
+
 	// frequency gain
 	paramValues->setAttribute("alphaGain", alphaEditable->getText());
 	paramValues->setAttribute("betaGain", betaEditable->getText());
@@ -581,6 +681,14 @@ void SeizureDetectorEditor::loadCustomParameters(XmlElement* xml)
         // timing
         durationEditable->setText(xmlNode->getStringAttribute("durationMS", durationEditable->getText()), sendNotificationAsync);
         timeoutEditable->setText(xmlNode->getStringAttribute("timeoutMS", timeoutEditable->getText()), sendNotificationAsync);
+
+		// frequency bands
+		alphaLowEdit->setText(xmlNode->getStringAttribute("alphaLow", limitEditable->getText()), sendNotificationAsync);
+		alphaHighEdit->setText(xmlNode->getStringAttribute("alphaHigh", limitEditable->getText()), sendNotificationAsync);
+		betaLowEdit->setText(xmlNode->getStringAttribute("betaLow", limitEditable->getText()), sendNotificationAsync);
+		betaHighEdit->setText(xmlNode->getStringAttribute("betaHigh", limitEditable->getText()), sendNotificationAsync);
+		deltaLowEdit->setText(xmlNode->getStringAttribute("deltaLow", limitEditable->getText()), sendNotificationAsync);
+		deltaHighEdit->setText(xmlNode->getStringAttribute("deltaHigh", limitEditable->getText()), sendNotificationAsync);
 
 		// frequency gains
 		alphaEditable->setText(xmlNode->getStringAttribute("alphaGain", limitEditable->getText()), sendNotificationAsync);

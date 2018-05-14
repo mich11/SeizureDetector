@@ -56,8 +56,14 @@ SeizureDetector::SeizureDetector()
     , sampsToShutoff    (-1)
     , sampsToReenable   (pastSpan)
     , shutoffChan       (-1)
+	, alphaLow          (6.0f)
+	, alphaHigh         (9.0f)
 	, alphaGain         (1.0f)
+	, betaLow           (13.0f)
+	, betaHigh          (18.0f)
 	, betaGain          (1.0f)
+	, deltaLow          (1.0f)
+	, deltaHigh         (4.0f)
 	, deltaGain         (1.0f)
 {
     setProcessorType(PROCESSOR_TYPE_FILTER);
@@ -85,7 +91,7 @@ void SeizureDetector::createEventChannels()
     chan->setDescription("Triggers whenever the input signal crosses a voltage threshold.");
     chan->setIdentifier("crossing.event");
 
-    // metadata storing source data channel
+		// metadata storing source data channel
     if (in)
     {
         MetaDataDescriptor sourceChanDesc(MetaDataDescriptor::UINT16, 3, "Source Channel",
@@ -123,9 +129,26 @@ void SeizureDetector::createEventChannels()
     eventMetaDataDescriptors.add(negOnDesc);
 
     eventChannelPtr = eventChannelArray.add(chan);
+	
+
+	//create accumulator and buffers for filtering
+	//snuck in with create event channels because it only 
+
+	deltaAcc acc(bt::rolling_window::window_size = sampleRate);
+
+	scratchBuffer = AudioSampleBuffer(5, sampleRate); // 5-dimensional buffer to hold band-filtered, averaged data
+	rollBuffer = AudioSampleBuffer(2, sampleRate);    // buffer for rolling average data
+
+	setFilterParameters();
+
 }
 
-void SeizureDetector::createConfigurationObjects()
+//void SeizureDetector::updateSettings()
+//{
+	
+//}
+
+void SeizureDetector::setFilterParameters()
 {
 	//design 3 filters with similar properties
 
@@ -140,8 +163,8 @@ void SeizureDetector::createConfigurationObjects()
 			Dsp::DirectFormII>(1));               // realization
 	}
 	//alpha (fundamental) frequency parameters
-	alphaHigh = 9;
-	alphaLow = 6;
+	//alphaHigh = 9;
+	//alphaLow = 6;
 	Dsp::Params alphaParams;
 	alphaParams[0] = sampRate; // sample rate
 	alphaParams[1] = 2;                          // order
@@ -151,8 +174,8 @@ void SeizureDetector::createConfigurationObjects()
 	filters[0]->setParams(alphaParams);
 	
 	//beta (harmonic) frequency paramteters
-	betaHigh = 18;
-	betaLow = 13;
+	//betaHigh = 18;
+	//betaLow = 13;
 	Dsp::Params betaParams;
 	betaParams[0] = sampRate;
 	betaParams[1] = 2;
@@ -162,8 +185,8 @@ void SeizureDetector::createConfigurationObjects()
 	filters[1]->setParams(betaParams);
 
 	//delta frequency parameters
-	deltaHigh = 4;
-	deltaLow = 1;
+	//deltaHigh = 4;
+	//deltaLow = 1;
 	Dsp::Params deltaParams;
 	deltaParams[0] = sampRate;
 	deltaParams[1] = 2;
@@ -172,11 +195,9 @@ void SeizureDetector::createConfigurationObjects()
 
 	filters[2]->setParams(deltaParams);
 
-	deltaAcc acc(bt::rolling_window::window_size = sampRate);
 
-	scratchBuffer = AudioSampleBuffer(5, sampRate); // 5-dimensional buffer to hold band-filtered, averaged data
-	rollBuffer = AudioSampleBuffer(2, sampRate);    // buffer for rolling average data
 }
+
 void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 {
     // state to keep constant during each call
@@ -216,10 +237,18 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 	//filter copied channel in beta band and set gain
 	float* ptrB = scratchBuffer.getWritePointer(1);
 	filters[1]->process(nSamples, &ptrB);
+	scratchBuffer.applyGain(1,
+		                    0,
+		                    nSamples,
+		                    betaGain);
 
 	//filter copied channel in delta band and set gain
 	float* ptrD = scratchBuffer.getWritePointer(2);
 	filters[2]->process(nSamples, &ptrD);
+	scratchBuffer.applyGain(2,
+			                0,
+		                    nSamples,
+		                    deltaGain);
 
 	//add alpha, beta, and delta channels together in continuous buffer, adding gain to the beta 
 	//and delta bands
@@ -231,20 +260,20 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 		                      nSamples);
 
 	continuousBuffer.addFrom(currChan,			//dest channel
-						     0,                 //dest start sample
+		                     0,                 //dest start sample
 		                     scratchBuffer,  //source buffer
 		                     1,          //source channel
 		                     0,                 //source start sample
-		                     nSamples,          //num samples
-		                     betaGain);             //gain
+		                     nSamples);          //num samples
+		                     //betaGain);             //gain
 
 	continuousBuffer.addFrom(currChan,
 		                     0,
 		                     scratchBuffer,
 		                     2,
 		                     0,
-		                     nSamples,
-		                     deltaGain);
+		                     nSamples);
+		                     //deltaGain);
 
 	//show unaveraged trigger signal on output channel 4
 	continuousBuffer.copyFrom(3,
@@ -527,12 +556,42 @@ void SeizureDetector::setParameter(int parameterIndex, float newValue)
         jumpLimit = newValue;
         break;
 
+	case pAlphaLow:
+		alphaLow = newValue;
+		setFilterParameters();
+		break;
+
+	case pAlphaHigh:
+		alphaHigh = newValue;
+		setFilterParameters();
+		break;
+
 	case pAlphaGain:
 		alphaGain = newValue;
 		break;
 
+	case pBetaLow:
+		betaLow = newValue;
+		setFilterParameters();
+		break;
+	
+	case pBetaHigh:
+		betaHigh = newValue;
+		setFilterParameters();
+		break;
+
 	case pBetaGain:
 		betaGain = newValue;
+		break;
+
+	case pDeltaLow:
+		deltaLow = newValue;
+		setFilterParameters();
+		break;
+		
+	case pDeltaHigh:
+		deltaHigh = newValue;
+		setFilterParameters();
 		break;
 
 	case pDeltaGain:
