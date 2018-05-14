@@ -24,8 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SEIZURE_DETECTOR_EDITOR_H_INCLUDED
 #define SEIZURE_DETECTOR_EDITOR_H_INCLUDED
 
-#include <VisualizerEditorHeaders.h>
-#include <VisualizerWindowHeaders.h>
+#include <EditorHeaders.h>
 #include <string>
 #include <climits>
 #include <cfloat>
@@ -48,10 +47,9 @@ Canvas/visualizer contains:
 @see GenericEditor
 */
 
-class SeizureDetectorCanvas;
 
 class SeizureDetectorEditor
-	: public VisualizerEditor
+	: public GenericEditor
 	, public ComboBox::Listener
 	, public Label::Listener
 {
@@ -62,7 +60,6 @@ public:
 	void labelTextChanged(Label* labelThatHasChanged) override;
 
 	// overrides GenericEditor
-	void buttonEvent(Button* button) override;
 
 	void updateSettings() override;
 
@@ -70,9 +67,9 @@ public:
 	void startAcquisition() override;
 	void stopAcquisition() override;
 
-	Visualizer* createNewCanvas() override;
+	//Visualizer* createNewCanvas() override;
 
-	Component* getOptionsPanel();
+	//Component* getOptionsPanel();
 
 	void saveCustomParameters(XmlElement* xml) override;
 	void loadCustomParameters(XmlElement* xml) override;
@@ -90,62 +87,61 @@ private:
 	static bool updateIntLabel(Label* label, int min, int max, int defaultValue, int* out);
 	static bool updateFloatLabel(Label* label, float min, float max, float defaultValue, float* out);
 
-	// top row (channels)
 	ScopedPointer<Label> inputLabel;
 	ScopedPointer<ComboBox> inputBox;
-	ScopedPointer<Label> outputLabel;
-	ScopedPointer<ComboBox> outputBox;
+	//ScopedPointer<Label> outputLabel;
+	//ScopedPointer<ComboBox> outputBox;
 
 	// middle row (threshold)
-	ScopedPointer<UtilityButton> risingButton;
-	ScopedPointer<UtilityButton> fallingButton;
-	ScopedPointer<Label> acrossLabel;
-	ScopedPointer<Label> thresholdEditable;
+	//ScopedPointer<UtilityButton> risingButton;
+	//ScopedPointer<UtilityButton> fallingButton;
+	//ScopedPointer<Label> acrossLabel;
+	//ScopedPointer<Label> thresholdEditable;
 
 	// bottom row (timeout)
-	ScopedPointer<Label> timeoutLabel;
-	ScopedPointer<Label> timeoutEditable;
-	ScopedPointer<Label> timeoutUnitLabel;
+	//ScopedPointer<Label> timeoutLabel;
+	//ScopedPointer<Label> timeoutEditable;
+	//ScopedPointer<Label> timeoutUnitLabel;
 
 	// --- Canvas elements are managed by editor but invisible until visualizer is opened ----
-	SeizureDetectorCanvas* canvas;
-	ScopedPointer<Component> optionsPanel;
+	//SeizureDetectorCanvas* canvas;
+	//ScopedPointer<Component> optionsPanel;
 
-	ScopedPointer<Label> optionsPanelTitle;
+	//ScopedPointer<Label> optionsPanelTitle;
 
 	// threshold randomization
-	ScopedPointer<ToggleButton> randomizeButton;
-	ScopedPointer<Label> minThreshLabel;
-	ScopedPointer<Label> minThreshEditable;
-	ScopedPointer<Label> maxThreshLabel;
-	ScopedPointer<Label> maxThreshEditable;
+	//ScopedPointer<ToggleButton> randomizeButton;
+	//ScopedPointer<Label> minThreshLabel;
+	//ScopedPointer<Label> minThreshEditable;
+	//ScopedPointer<Label> maxThreshLabel;
+	//ScopedPointer<Label> maxThreshEditable;
 
 	// jump limiting
-	ScopedPointer<ToggleButton> limitButton;
-	ScopedPointer<Label> limitLabel;
-	ScopedPointer<Label> limitEditable;
+	//ScopedPointer<ToggleButton> limitButton;
+	//ScopedPointer<Label> limitLabel;
+	//ScopedPointer<Label> limitEditable;
 
 	// sample voting
-	ScopedPointer<Label> votingHeader;
+	//ScopedPointer<Label> votingHeader;
 
-	ScopedPointer<Label> pastStrictLabel;
-	ScopedPointer<Label> pastPctEditable;
-	ScopedPointer<Label> pastPctLabel;
-	ScopedPointer<Label> pastSpanEditable;
-	ScopedPointer<Label> pastSpanLabel;
+	//ScopedPointer<Label> pastStrictLabel;
+	//ScopedPointer<Label> pastPctEditable;
+	//ScopedPointer<Label> pastPctLabel;
+	//ScopedPointer<Label> pastSpanEditable;
+	//ScopedPointer<Label> pastSpanLabel;
 
-	ScopedPointer<Label> futureStrictLabel;
-	ScopedPointer<Label> futurePctEditable;
-	ScopedPointer<Label> futurePctLabel;
-	ScopedPointer<Label> futureSpanLabel;
-	ScopedPointer<Label> futureSpanEditable;
+	//ScopedPointer<Label> futureStrictLabel;
+	//ScopedPointer<Label> futurePctEditable;
+	//ScopedPointer<Label> futurePctLabel;
+	//ScopedPointer<Label> futureSpanLabel;
+	//ScopedPointer<Label> futureSpanEditable;
 
-	ScopedPointer<Label> votingFooter;
+	//ScopedPointer<Label> votingFooter;
 
 	// event duration
-	ScopedPointer<Label> durLabel;
-	ScopedPointer<Label> durationEditable;
-	ScopedPointer<Label> durUnitLabel;
+	//ScopedPointer<Label> durLabel;
+	//ScopedPointer<Label> durationEditable;
+	//ScopedPointer<Label> durUnitLabel;
 
 	// frequency bandds
 	ScopedPointer<Label> freqLabel;
@@ -170,29 +166,6 @@ private:
 	ScopedPointer<Label> deltaEditable;
 };
 
-// Visualizer window containing additional settings
 
-class SeizureDetectorCanvas : public Visualizer
-{
-public:
-    SeizureDetectorCanvas(GenericProcessor* n);
-    ~SeizureDetectorCanvas();
-    void refreshState() override;
-    void update() override;
-    void refresh() override;
-    void beginAnimation() override;
-    void endAnimation() override;
-    void setParameter(int, float) override;
-    void setParameter(int, int, int, float) override;
-
-    void paint(Graphics& g) override;
-    void resized() override;
-
-    GenericProcessor* processor;
-    SeizureDetectorEditor* editor;
-private:
-    ScopedPointer<Viewport> viewport;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SeizureDetectorCanvas);
-};
 
 #endif // SEIZURE_DETECTOR_EDITOR_H_INCLUDED

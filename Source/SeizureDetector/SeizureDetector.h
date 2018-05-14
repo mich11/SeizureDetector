@@ -57,22 +57,7 @@ typedef ba::accumulator_set < double, ba::stats < bt::rolling_mean > > deltaAcc;
 // parameter indices
 enum
 {
-	pRandThresh,
-	pMinThresh,
-	pMaxThresh,
-	pThreshold,
-	pPosOn,
-	pNegOn,
 	pInputChan,
-	pEventChan,
-	pEventDur,
-	pTimeout,
-	pPastSpan,
-	pPastStrict,
-	pFutureSpan,
-	pFutureStrict,
-	pUseJumpLimit,
-	pJumpLimit,
 	pAlphaLow,
 	pAlphaHigh,
 	pAlphaGain,
