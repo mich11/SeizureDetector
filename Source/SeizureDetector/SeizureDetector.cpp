@@ -37,6 +37,7 @@ First, simply filtering the data before thresholding
 SeizureDetector::SeizureDetector()
     : GenericProcessor  ("Seizure Detector")
     , inputChan         (0)
+	, rollDur           (1000)
 	, alphaLow          (6.0f)
 	, alphaHigh         (9.0f)
 	, alphaGain         (1.0f)
@@ -74,9 +75,10 @@ void SeizureDetector::createEventChannels()
 	deltaAcc acc(bt::rolling_window::window_size = sampleRate);
 
 	scratchBuffer = AudioSampleBuffer(5, sampleRate); // 5-dimensional buffer to hold band-filtered, averaged data
-	rollBuffer = AudioSampleBuffer(2, sampleRate);    // buffer for rolling average data
+
 
 	setFilterParameters();
+	setRollingWindowParameters();
 
 }
 
@@ -85,8 +87,19 @@ void SeizureDetector::createEventChannels()
 	
 //}
 
+void SeizureDetector::setRollingWindowParameters()
+{
+	//set rolling buffer size
+	int sampRate = dataChannelArray[inputChan]->getSampleRate();
+	int buffSize = sampRate*rollDur / 1000;
+	rollBuffer = AudioSampleBuffer(2, buffSize);    // buffer for rolling average data
+
+}
+
 void SeizureDetector::setFilterParameters()
 {
+
+
 	//design 3 filters with similar properties
 
 	int sampRate = dataChannelArray[inputChan]->getSampleRate();
@@ -146,7 +159,25 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
     int nSamples = getNumSamples(currChan);
     const float* rp = continuousBuffer.getReadPointer(currChan);
 
-	//here is where to filter (PMF)
+	//get adjacent channel numbers to display raw data, pre-averaged signal
+	int preAvgChan;
+	int rawChan;
+
+	if (currChan < (continuousBuffer.getNumChannels() - 2))
+	{
+		rawChan = currChan + 2;
+		preAvgChan = currChan + 1;
+	}
+	else if (currChan < (continuousBuffer.getNumChannels() - 1))
+	{
+		rawChan = currChan - 1;
+		preAvgChan = currChan + 1;
+	}
+	else
+	{
+		preAvgChan = currChan - 1;
+		rawChan = currChan - 2;
+	}
 
 	//copy channel to scractchBuffer channels for processing
 
@@ -185,6 +216,14 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 		                    nSamples,
 		                    deltaGain);
 
+	//copy raw data from input/trigger channel to adjacent channel for viewing
+	continuousBuffer.copyFrom(rawChan,
+		                      0,
+		                      continuousBuffer,
+		                      currChan,
+		                      0,
+		                      nSamples);
+
 	//add alpha, beta, and delta channels together in continuous buffer, adding gain to the beta 
 	//and delta bands
 	continuousBuffer.copyFrom(currChan,
@@ -210,13 +249,16 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 		                     nSamples);
 		                     //deltaGain);
 
-	//show unaveraged trigger signal on output channel 4
-	continuousBuffer.copyFrom(3,
+	//show unaveraged trigger signal on output channel adjacent to 
+	//input/triggering channel
+
+	continuousBuffer.copyFrom(preAvgChan,
 							  0,
 		                      continuousBuffer,
 		                      currChan,
 		                      0,
 		                      nSamples);
+	
 
 	//apply a 1s rolling average do delta band
 	//initialize constants
@@ -225,11 +267,11 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 	int rollAdd = rollSamples - nSamples;
 	
 	//initialize accumulator with 1 second rolling window
-	deltaAcc acc(bt::rolling_window::window_size = sampRate);
+	deltaAcc acc(bt::rolling_window::window_size = rollSamples);
 	float rollM;
 
 	//push previous 1 second of differentiated data into the accumulator
-	for (int i = 0; i < sampRate-1; i++)
+	for (int i = 0; i < rollSamples-1; i++)
 	{
 		acc(std::fabs(rollBuffer.getSample(0, i+1)-rollBuffer.getSample(0,i)));
 		//acc(rollBuffer.getSample(0, i));
@@ -266,6 +308,8 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 		0,
 		nSamples);
 
+
+	//temporarily add gain to output signal so that its units are more useful
 	scratchBuffer.applyGain(3, 0, nSamples, 100);
 
 	//overwrite the triggering channel with 1s averaged data
@@ -282,12 +326,12 @@ void SeizureDetector::process(AudioSampleBuffer& continuousBuffer)
 
 
 	//show raw delta on output channel 5
-	continuousBuffer.copyFrom(4,
-		                     0,
-		                     scratchBuffer,
-		                     2,
-		                     0,
-		                     nSamples);
+	//continuousBuffer.copyFrom(4,
+	//	                     0,
+	//	                     scratchBuffer,
+	//	                     2,
+	//	                     0,
+	//	                     nSamples);
 
 	//continuousBuffer.applyGain(1);
 
@@ -306,6 +350,11 @@ void SeizureDetector::setParameter(int parameterIndex, float newValue)
             inputChan = static_cast<int>(newValue);
         break;
 		
+	case pRollDur:
+		rollDur = newValue;
+		setRollingWindowParameters();
+		break;
+
 	case pAlphaLow:
 		alphaLow = newValue;
 		setFilterParameters();
@@ -352,74 +401,10 @@ void SeizureDetector::setParameter(int parameterIndex, float newValue)
 
 bool SeizureDetector::disable()
 {
-    // set this to pastSpan so that we don't trigger on old data when we start again.
-    sampsToReenable = pastSpan;
+
     return true;
 }
 
-bool SeizureDetector::shouldTrigger(const float* rpCurr, int nSamples, int t0, float currThresh,
-    bool currPosOn, bool currNegOn, int currPastSpan, int currFutureSpan)
-{
-    if (!currPosOn && !currNegOn)
-        return false;
 
-    if (currPosOn && currNegOn)
-        return shouldTrigger(rpCurr, nSamples, t0, currThresh, true, false, currPastSpan, currFutureSpan)
-        || shouldTrigger(rpCurr, nSamples, t0, currThresh, false, true, currPastSpan, currFutureSpan);
 
-    // at this point exactly one of posOn and negOn is true.
 
-    int minInd = t0 - (currPastSpan + 1);
-    int maxInd = t0 + currFutureSpan;
-
-    // check whether we have enough data
-    // (shouldn't happen unless the buffers are too short or the spans are too long)
-    if (minInd < -lastBuffer.size() || maxInd >= nSamples)
-        return false;
-
-    const float* rpLast = lastBuffer.end();
-
-// allow us to treat the previous and current buffers as one array
-#define rp(x) ((x)>=0 ? rpCurr[(x)] : rpLast[(x)])
-// satisfies pre-t0 condition
-#define preSat(i) (currPosOn ? rp(i) < currThresh : rp(i) > currThresh)
-// satisfies post-t0 condition
-#define postSat(i) (currPosOn ? rp(i) >= currThresh : rp(i) <= currThresh)
-
-    // first, check transition point
-    // must cross in the correct direction and (maybe) have a jump no greater than jumpLimit
-    float currJumpLimit = useJumpLimit ? jumpLimit : FLT_MAX;
-    float jumpSize = abs(rp(t0) - rp(t0 - 1));
-    if (!(preSat(t0 - 1) && postSat(t0) && jumpSize <= currJumpLimit))
-        return false;
-    
-    // additional past and future "voting" samples
-    int numPastRequired = currPastSpan ? static_cast<int>(ceil(currPastSpan * pastStrict)) : 0;
-    int numFutureRequired = currFutureSpan ? static_cast<int>(ceil(currFutureSpan * futureStrict)) : 0;
-
-    for (int i = minInd; i < t0 - 1 && numPastRequired > 0; i++)
-        if (preSat(i))
-            numPastRequired--;
-
-    if (numPastRequired == 0) // "prev" condition satisfied
-    {
-        for (int i = t0 + 1; i <= maxInd && numFutureRequired > 0; i++)
-            if (postSat(i))
-                numFutureRequired--;
-
-        if (numFutureRequired == 0) // "next" condition satisfied
-            return true;
-    }
-    
-    return false;
-
-#undef rp
-#undef preSat
-#undef postSat
-}
-
-float SeizureDetector::nextThresh()
-{
-    float range = maxThresh - minThresh;
-    return minThresh + range * rng.nextFloat();
-}

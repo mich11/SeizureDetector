@@ -26,17 +26,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SeizureDetectorEditor::SeizureDetectorEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
     : GenericEditor(parentNode, useDefaultParameterEditors)
 {
-	desiredWidth = 350;
+	desiredWidth = 250;
 
     SeizureDetector* processor = static_cast<SeizureDetector*>(parentNode);
 
     const int TEXT_HT = 18;
-    /* ------------- Top row (channels) ------------- */
+	
+	/* ---------------- Left panel input channel and rolling window size --------------- */
+
     int xPos = 12;
     int yPos = 36;
 
     inputLabel = createLabel("InputChanL", "In:", Rectangle(xPos, yPos, 30, TEXT_HT));
     addAndMakeVisible(inputLabel);
+
+	rollLabel1 = createLabel("rollL1", "Window", Rectangle(xPos, yPos += 30, 70, TEXT_HT));
+	addAndMakeVisible(rollLabel1);
+
+	rollEdit = createEditable("rollE", String(processor->rollDur), "",
+		Rectangle(xPos, yPos += 20, 40, TEXT_HT));
+	addAndMakeVisible(rollEdit);
+
+	rollLabel2 = createLabel("rollL2", "ms", Rectangle(xPos +=42, yPos, 30, TEXT_HT));
+	addAndMakeVisible(rollLabel2);
+
+
+	xPos = 12;
+	yPos = 36;
 
     inputBox = new ComboBox("Input channel");
     inputBox->setTooltip("Continuous channel to analyze");
@@ -44,11 +60,10 @@ SeizureDetectorEditor::SeizureDetectorEditor(GenericProcessor* parentNode, bool 
     inputBox->addListener(this);
     addAndMakeVisible(inputBox);
 
-
-	/* ---------------- Right Panel Frequency ranges and gains (PMF) --------------- */
+	/* ---------------- Right Panel Frequency ranges and gains --------------- */
 
 	//frequency band low cutoffs
-	int xPosR = 190;
+	int xPosR = 90;
 	int yPosR = 25;
 
 	freqLabel = createLabel("freqL", "Frequency bands", Rectangle(xPosR, yPosR, 150, TEXT_HT));
@@ -71,7 +86,7 @@ SeizureDetectorEditor::SeizureDetectorEditor(GenericProcessor* parentNode, bool 
 
 	//frequency band high cutoffs
 
-	xPosR = 240;
+	xPosR = 140;
 	yPosR = 45;
 
 	freqLabelSub2 = createLabel("freqLS2", "High", Rectangle(xPosR, yPosR, 50, TEXT_HT));
@@ -91,7 +106,7 @@ SeizureDetectorEditor::SeizureDetectorEditor(GenericProcessor* parentNode, bool 
 
 	//frequency band gains
 
-	xPosR = 290; 
+	xPosR = 190; 
 	yPosR = 45; 
 	
 	gainLabel = createLabel("gainL", "Gain", Rectangle(xPosR, yPosR, 50, TEXT_HT));
@@ -136,11 +151,19 @@ void SeizureDetectorEditor::labelTextChanged(Label* labelThatHasChanged)
 	
 	if (labelThatHasChanged == alphaLowEdit)
 	{
-		float newVal;
-		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->alphaLow, &newVal);
+		int newVal;
+		bool success = updateIntLabel(labelThatHasChanged, 0, INT_MAX, processor->alphaLow, &newVal);
 
 		if (success)
 			processor->setParameter(pAlphaLow, newVal);
+	}
+	else if (labelThatHasChanged == rollEdit)
+	{
+		float newVal;
+		bool success = updateFloatLabel(labelThatHasChanged, 0, FLT_MAX, processor->rollDur, &newVal);
+
+		if (success)
+			processor->setParameter(pRollDur, newVal);
 	}
 	else if (labelThatHasChanged == alphaHighEdit)
 	{

@@ -89,59 +89,11 @@ private:
 
 	ScopedPointer<Label> inputLabel;
 	ScopedPointer<ComboBox> inputBox;
-	//ScopedPointer<Label> outputLabel;
-	//ScopedPointer<ComboBox> outputBox;
 
-	// middle row (threshold)
-	//ScopedPointer<UtilityButton> risingButton;
-	//ScopedPointer<UtilityButton> fallingButton;
-	//ScopedPointer<Label> acrossLabel;
-	//ScopedPointer<Label> thresholdEditable;
-
-	// bottom row (timeout)
-	//ScopedPointer<Label> timeoutLabel;
-	//ScopedPointer<Label> timeoutEditable;
-	//ScopedPointer<Label> timeoutUnitLabel;
-
-	// --- Canvas elements are managed by editor but invisible until visualizer is opened ----
-	//SeizureDetectorCanvas* canvas;
-	//ScopedPointer<Component> optionsPanel;
-
-	//ScopedPointer<Label> optionsPanelTitle;
-
-	// threshold randomization
-	//ScopedPointer<ToggleButton> randomizeButton;
-	//ScopedPointer<Label> minThreshLabel;
-	//ScopedPointer<Label> minThreshEditable;
-	//ScopedPointer<Label> maxThreshLabel;
-	//ScopedPointer<Label> maxThreshEditable;
-
-	// jump limiting
-	//ScopedPointer<ToggleButton> limitButton;
-	//ScopedPointer<Label> limitLabel;
-	//ScopedPointer<Label> limitEditable;
-
-	// sample voting
-	//ScopedPointer<Label> votingHeader;
-
-	//ScopedPointer<Label> pastStrictLabel;
-	//ScopedPointer<Label> pastPctEditable;
-	//ScopedPointer<Label> pastPctLabel;
-	//ScopedPointer<Label> pastSpanEditable;
-	//ScopedPointer<Label> pastSpanLabel;
-
-	//ScopedPointer<Label> futureStrictLabel;
-	//ScopedPointer<Label> futurePctEditable;
-	//ScopedPointer<Label> futurePctLabel;
-	//ScopedPointer<Label> futureSpanLabel;
-	//ScopedPointer<Label> futureSpanEditable;
-
-	//ScopedPointer<Label> votingFooter;
-
-	// event duration
-	//ScopedPointer<Label> durLabel;
-	//ScopedPointer<Label> durationEditable;
-	//ScopedPointer<Label> durUnitLabel;
+	ScopedPointer<Label> rollLabel1;
+	ScopedPointer<Label> rollLabel2;
+	ScopedPointer<Label> rollEdit;
+	
 
 	// frequency bandds
 	ScopedPointer<Label> freqLabel;
