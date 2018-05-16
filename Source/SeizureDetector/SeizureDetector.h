@@ -21,6 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+
+// The multi-band integrator allows the user to take a weighted sum of up to 3 frequency bands and apply a rolling average to build
+// a power signal for complex waveforms with well-defined spectral properties.  It was initially developed to detect absence-like seizures
+// in real time from EEG recorded in awake, head-fixed mice.
+
+// The user sets the duration of the rolling window and input channel, as well as frequency ranges and gains that define the waveform of interest  
+// The processed signal is output on the same channel as the input channel. Two adjacent channels are overwritten with the initial raw input 
+// channel and the weighted summed signal before averaging to allow the user to fine-tune frequency ranges and gains on a per-animal basis.  
+// Because channels are overwritten, I recommend using a split path in open ephys.  One of the split paths includes the seizure detector followed
+// by an LFP viewer to show how the input channel is being filtered.  The other contains a second LFP viewer to show all of the channels without
+// any multi-band integrator processing
+
+// This plugin can be used with the third party crossing detector plugin to trigger events based on the processed output from the multi-band integrator.
+
+
 #ifndef SEIZURE_DETECTOR_H_INCLUDED
 #define SEIZURE_DETECTOR_H_INCLUDED
 
@@ -40,21 +55,8 @@ namespace ba = boost::accumulators;
 namespace bt = ba::tag;
 typedef ba::accumulator_set < double, ba::stats < bt::rolling_mean > > deltaAcc;
 
-/*
- * The crossing detector plugin is designed to read in one continuous channel c, and generate events on one events channel
- * when c crosses a certain value. There are various parameters to tweak this basic functionality, including:
- *  - whether to listen for crosses with a positive or negative slope, or either
- *  - how strictly to filter transient level changes, by adjusting the required number and percent of past and future samples to be above/below the threshold
- *  - the duration of the generated event
- *  - the minimum time to wait between events ("timeout")
- *
- * All ontinuous signals pass through unchanged, so multiple CrossingDetectors can be
- * chained together in order to operate on more than one channel.
- *
- * @see GenericProcessor
- */
 
-// parameter indices
+
 enum
 {
 	pInputChan,
@@ -130,4 +132,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SeizureDetector);
 };
 
-#endif // CROSSING_DETECTOR_H_INCLUDED
+#endif 

@@ -32,7 +32,7 @@ SeizureDetectorEditor::SeizureDetectorEditor(GenericProcessor* parentNode, bool 
 
     const int TEXT_HT = 18;
 	
-	/* ---------------- Left panel input channel and rolling window size --------------- */
+	/* ---------------- Frequency ranges and gains --------------- */
 
     int xPos = 12;
     int yPos = 36;

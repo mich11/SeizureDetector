@@ -32,19 +32,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 Editor (in signal chain) contains:
-- Input channel selector
-- Ouptput event channel selector
-- Direction ("rising" and "falling") buttons
-- Threshold control (and indicator when threshold randomization is on)
-- Event timeout control
-
-Canvas/visualizer contains:
-- Threshold randomization toggle, minimum and maximum thresh boxes
-- Slope (jump size across threshold) limiting toggle and max jump box
-- Voting settings (pre/post event span and strictness)
-- Event duration control
-
-@see GenericEditor
+- Input channel selector (filtered output will appear on this channel as well)
+- Rolling window duration (ms)
+- Low-cut and High-cut frequencies for 3 frequency bands of interest
+- Gains for each frequency band
 */
 
 
