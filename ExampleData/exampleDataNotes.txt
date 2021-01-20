@@ -1,0 +1,36 @@
+test dataset for seizure detection
+
+Data collected by Michelle Fogerson, in the Huguenard Lab, 2018-2019 (unpublished). Mice are adult Scn8a-med het mice, which have spontaneous absence seizures (Papale et al, 2009, Hum Mol Genet). Post-hoc seizure detection was performed on EEG data using a wavelet-based algorithm (Sorokin et al, 2016, J Physiol Paris). Data included come from 4 different animals recorded while headfixed for simultaneous calcium imaging. Seizures must last at least 1s to be tagged by the post-hoc analysis. 
+
+One .mat file per animal, contains a seizureData structure with the following fields:
+EEG = 1 channel EEG data
+EEGts = time vector for EEG data
+seizures1s = post-hoc seizure detection output. A 2D n x 6 matrix, where n is the number of detected seizures. For each seizure, 6 values are reported:
+	column 1: start index/start point
+	column 2: end index/end point
+	column 3: start time (s)
+	column 4: end time (s)
+	column 5: duration (s)
+	column 6: power
+seizureKey = identifiers for each of the 6 columns in seizures1s.
+mouseId = mouse ID
+recId = recording ID
+
+Citations
+
+ Papale 09:
+ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2667290/
+
+ Sorokin 2016:
+ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5607110/
+ 
+To plot EEG data and seizure start/end times in matlab, execute something like the following after loading the seizureData struct from one of the example files
+
+plot(seizureData.EEGts,seizureData.EEG)
+hold on
+yval=prctile(seizureData.EEG,99.9)
+%scatter seizure start times in red, and seizure end times in green
+scatter(seizureData.seizures1s(:,3),ones(1,numel(seizureData.seizures1s(:,3)))*yval,'g','filled')
+scatter(seizureData.seizures1s(:,4),ones(1,numel(seizureData.seizures1s(:,4)))*yval,'r','filled')
+xlabel('time (s)')
+ylabel('microvolts')
