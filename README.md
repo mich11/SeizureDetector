@@ -19,7 +19,7 @@ Users can specify
 The example data set contains mouse EEG recordings and annotations for seizure start/end times for plugin testing and future development. See ExampleData/ExampleDataNotes.txt for details
 
 ## Legacy Installation
-This plugin and install procedure has only been built and tested on Windows.  It depends on the Dsp library and a subset of the Boost libraries, making it tricky to install. Installing the latest version of Open Ephys and its built-in plugin installer [here] ( https://open-ephys.github.io/gui-docs/User-Manual/Plugins/Multiband-Integrator.html) instead is highly recommended. To install for Open Ephys version 0.4.5, try the following:
+This plugin and install procedure has only been built and tested on Windows.  It depends on the Dsp library and a subset of the Boost libraries, making it tricky to install. Installing the latest version of Open Ephys and its built-in plugin installer [here](https://open-ephys.github.io/gui-docs/User-Manual/Plugins/Multiband-Integrator.html) instead is highly recommended. To install for Open Ephys version 0.4.5, try the following:
 
 * Copy `multi-band-integrator/Source/` to `plugin-GUI/Source/Plugins/MultiBandIntegrator`.
 
