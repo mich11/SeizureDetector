@@ -39,6 +39,6 @@ This plugin and install procedure has only been built and tested on Windows.  It
   * Go to `Build Dependencies -> Project Order...` and check that MultiBandIntegrator is lower than DspLib in the build order
   * Right click plugin project
   * Go to `Properties -> Configuration Properties -> Linker -> Input`, click drop-down menu for Additional Dependencies and select `<Edit...>`
-  * Add DspLib.Lib to upper window
+  * Add `DspLib.Lib` to upper window
 
 * Build the plugin
